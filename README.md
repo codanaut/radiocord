@@ -2,6 +2,8 @@
 
 A radio for discord voice chats. This bot plays music from internet radio live streams. 
 
+![example](https://imgur.com/IBofTuC)
+
 ## Getting started
 
 ### Requirements:
