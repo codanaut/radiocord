@@ -5,6 +5,10 @@ import random
 import time
 import os
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
+import asyncio
+import aiohttp
+import json
+import xml.etree.ElementTree as ET
 
 if os.name =='nt':
     ffmpegPath = r"C:\\FFmpeg\\bin\\ffmpeg.exe"
@@ -19,21 +23,29 @@ class radio(commands.Cog, name="Radio Commands"):
 
     def __init__(self, bot):
         self.bot = bot
+        self.updateTask = None
 
     # Paddock Radio - https://www.paddockradio.net/
     @commands.slash_command(name='paddockradio',
                     description="Paddock Radio",
                     pass_context=True)
     async def paddockradio(self,ctx):
-        source = FFmpegPCMAudio("http://stream.paddockradio.net/radio/8000/radio.mp3", executable=ffmpegPath)
+
+        streamURL = "http://stream.paddockradio.net/radio/8000/radio.mp3"
+        stationApiUrl = "https://stream.paddockradio.net/api/nowplaying"
+        
+        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
         if ctx.voice_client is not None:
             await ctx.voice_client.disconnect()
         connected = ctx.author.voice
         if connected:
             await connected.channel.connect()
             ctx.voice_client.play(source, after=None)
-            await ctx.respond(f"Connecting to {connected.channel}")
-            await ctx.edit(content='Now Playing: Paddock Radio - https://www.paddockradio.net/')
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel}")
+            await ctx.respond(embed=connectionEmbed)
+            if self.updateTask is not None:
+                self.updateTask.cancel()
+            self.updateTask = asyncio.create_task(self.updateSongAzuraCast(ctx,stationApiUrl))
         else:
             await ctx.respond('Plase Connect to voice channel')
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
@@ -44,15 +56,22 @@ class radio(commands.Cog, name="Radio Commands"):
                     description="UPFM Radio",
                     pass_context=True)
     async def upfm(self,ctx):
-        source = FFmpegPCMAudio("https://stream.upfm.live/radio/8000/radio.mp3", executable=ffmpegPath)
+
+        streamURL = "https://stream.upfm.live/radio/8000/radio.mp3"
+        stationApiUrl = "https://stream.upfm.live/api/nowplaying"
+
+        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
         if ctx.voice_client is not None:
             await ctx.voice_client.disconnect()
         connected = ctx.author.voice
         if connected:
             await connected.channel.connect()
             ctx.voice_client.play(source, after=None)
-            await ctx.respond(f"Connecting to {connected.channel}")
-            await ctx.edit(content='Now Playing: UPFM Radio - https://upfm.co.nz/')
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel}")
+            await ctx.respond(embed=connectionEmbed)
+            if self.updateTask is not None:
+                self.updateTask.cancel()
+            self.updateTask = asyncio.create_task(self.updateSongAzuraCast(ctx,stationApiUrl))
         else:
             await ctx.respond('Plase Connect to voice channel')
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")        
@@ -83,19 +102,28 @@ class radio(commands.Cog, name="Radio Commands"):
                     description="Reggae Radio",
                     pass_context=True)
     async def reggae(self,ctx):
-        source = FFmpegPCMAudio("https://partyviberadio.com:8060", executable=ffmpegPath)
+
+        streamURL = "https://partyviberadio.com:8060"
+        stationApiUrl = "http://www.partyviberadio.com:8010/stats?sid=1"
+        
+        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
         if ctx.voice_client is not None:
             await ctx.voice_client.disconnect()
         connected = ctx.author.voice
         if connected:
             await connected.channel.connect()
             ctx.voice_client.play(source, after=None)
-            await ctx.respond(f"Connecting to {connected.channel}")
-            await ctx.edit(content='Now Playing: Reggae Radio - https://www.partyvibe.com/reggae-radio-station/')
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel}")
+            await ctx.respond(embed=connectionEmbed)
+            if self.updateTask is not None:
+                self.updateTask.cancel()
+            self.updateTask = asyncio.create_task(self.updateSongShoutCast(ctx,stationApiUrl))
         else:
             await ctx.respond('Plase Connect to voice channel')
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
+
+    
 
     # Leave VC Channel
     @commands.slash_command(description="stops and disconnects the bot from voice")
@@ -104,6 +132,49 @@ class radio(commands.Cog, name="Radio Commands"):
         await ctx.voice_client.disconnect()
         await ctx.respond("Leaving Room!")
 
+
+    #
+    # Functions to update currently playing songs depending on radio server. 
+    #
+
+    async def updateSongAzuraCast(self, message, url):
+        while True:
+            nowPlayingurl = url
+            async with aiohttp.ClientSession() as session:  # Async HTTP request
+                raw_response = await session.get(nowPlayingurl)
+                response = await raw_response.text()
+                response = json.loads(response)
+                stationInfo = response[0]['station']['name']
+                stationURL = response[0]['station']['url']
+                stationDescription = response[0]['station']['description']
+                nowPlaying = response[0]['now_playing']['song']['title']
+                nowPlayingArtist = response[0]['now_playing']['song']['artist']
+                nowPlayingArt = response[0]['now_playing']['song']['art']
+            # Update the message with the new song information
+            embed=discord.Embed(title=stationInfo, url=stationURL, description=stationDescription, color=0x2ec27e)
+            embed.set_thumbnail(url=nowPlayingArt)
+            embed.add_field(name="Now Playing", value=f'{nowPlaying} \n {nowPlayingArtist}', inline=False)
+            await message.edit(embed=embed)
+            await asyncio.sleep(30)  # Wait 30 seconds before making the next request
+
+
+    async def updateSongShoutCast(self, message, url):
+        while True:
+            nowPlayingurl = url
+            async with aiohttp.ClientSession() as session:  # Async HTTP request
+                raw_response = await session.get(nowPlayingurl)
+                response_text = await raw_response.text()
+                root = ET.fromstring(response_text)
+                nowPlaying = root.find("SONGTITLE").text
+                stationURL = root.find("SERVERURL").text
+                stationInfo = root.find("SERVERTITLE").text
+                nowPlayingArt = "https://cdn-icons-png.flaticon.com/512/2226/2226904.png"
+            # Update the message with the new song information
+            embed=discord.Embed(title=stationInfo, url=stationURL, color=0x2ec27e)
+            embed.set_thumbnail(url=nowPlayingArt)
+            embed.add_field(name="Now Playing", value=f'{nowPlaying}', inline=False)
+            await message.edit(embed=embed)
+            await asyncio.sleep(30)  # Wait 30 seconds before making the next request
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
 # When we load the cog, we use the name of the file.
