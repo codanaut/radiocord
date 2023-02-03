@@ -28,8 +28,7 @@ def get_prefix(bot, message):
 # Below cogs represents our folder our cogs are in. Following is the file name. So 'meme.py' in cogs, would be cogs.meme
 # Think of it like a dot path import
 initial_extensions = [
-                      'cogs.radio',
-                      'cogs.tools'
+                      'cogs.radio'
                       ]
 
 bot = commands.Bot(command_prefix=get_prefix, description='Cheat Codes: Use at your own risk, there is no quick save irl.', intents=intents)
@@ -52,7 +51,7 @@ async def on_ready():
     print(f'\nLogged in as: {bot.user.name}\nDiscord Version: {discord.__version__}\n-----')
 
     # Changes our bots Playing Status. type=1(streaming) for a standard game you could remove type and url.
-    await bot.change_presence(activity=discord.Game(name='/help - to get help'))
+    await bot.change_presence(activity=discord.Game(name='the best tunes!'))
     
     print(f'Successfully logged in and booted...!')
     print('-----')
