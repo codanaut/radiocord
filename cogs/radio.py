@@ -9,6 +9,7 @@ import asyncio
 import aiohttp
 import json
 import xml.etree.ElementTree as ET
+import youtube_dl
 
 if os.name =='nt':
     ffmpegPath = r"C:\\FFmpeg\\bin\\ffmpeg.exe"
@@ -123,7 +124,43 @@ class radio(commands.Cog, name="Radio Commands"):
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
 
-    
+    # LofiGirl
+    @commands.slash_command(name='lofigirl',
+                    description="Lofi Radio",
+                    pass_context=True)
+    async def lofigirl(self,ctx):
+
+        streamURL = "https://www.youtube.com/watch?v=jfKfPfyJRdk"
+        
+        if ctx.voice_client is not None:
+            await ctx.voice_client.disconnect()
+        connected = ctx.author.voice
+        if connected:
+            await connected.channel.connect()
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel}")
+            await ctx.respond(embed=connectionEmbed)
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'quiet' : 'true',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                    }],
+            }
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(streamURL, download=False)
+                video_url = info['url']
+                ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
+                embed=discord.Embed(title="Lofi Girl", url=video_url, description="Lofi Music", color=0x2ec27e)
+                embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/en/2/23/Lofi_girl_logo.jpg")
+                #embed.add_field(name="Now Playing", value=f'{nowPlaying} \n {nowPlayingArtist}', inline=False)
+                await ctx.edit(embed=embed)
+
+        else:
+            await ctx.respond('Plase Connect to voice channel')
+        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
+
 
     # Leave VC Channel
     @commands.slash_command(description="stops and disconnects the bot from voice")
