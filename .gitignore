@@ -1,0 +1,4 @@
+
+*.secret
+
+cogs/__pycache__/
