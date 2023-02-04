@@ -196,13 +196,6 @@ class radio(commands.Cog, name="Radio Commands"):
 
 
 
-    # Leave VC Channel
-    @commands.slash_command(description="stops and disconnects the bot from voice")
-    async def leave(self, ctx):
-        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
-        await ctx.voice_client.disconnect()
-        await ctx.respond("Leaving Room!")
-
 
     #
     # Functions to update currently playing songs depending on radio server. 
