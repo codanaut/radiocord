@@ -36,6 +36,7 @@ class lofi(commands.Cog, name="Lofi Stations"):
         if connected:
             await connected.channel.connect()
             connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!")
+            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
             await ctx.respond(embed=connectionEmbed)
             ydl_opts = {
                 'format': 'bestaudio/best',
@@ -50,9 +51,11 @@ class lofi(commands.Cog, name="Lofi Stations"):
                 info = ydl.extract_info(streamURL, download=False)
                 video_url = info['url']
                 video_title = info['title']
+                video_id = info['id']
+                video_thumbnail = f"https://i3.ytimg.com/vi/{video_id}/maxresdefault.jpg"
                 ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
                 embed=discord.Embed(title=video_title, url=video_url, description="Lofi Girl - This playlist contains the smoothest lofi hip hop beats, perfect to help you chill or study.", color=0x2ec27e)
-                embed.set_thumbnail(url="https://i.imgur.com/ph10Ywa.jpg")
+                embed.set_thumbnail(url=video_thumbnail)
                 await ctx.edit(embed=embed)
 
         else:
@@ -74,6 +77,7 @@ class lofi(commands.Cog, name="Lofi Stations"):
         if connected:
             await connected.channel.connect()
             connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!")
+            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
             await ctx.respond(embed=connectionEmbed)
             ydl_opts = {
                 'format': 'bestaudio/best',
@@ -88,9 +92,11 @@ class lofi(commands.Cog, name="Lofi Stations"):
                 info = ydl.extract_info(streamURL, download=False)
                 video_url = info['url']
                 video_title = info['title']
+                video_id = info['id']
+                video_thumbnail = f"https://i3.ytimg.com/vi/{video_id}/maxresdefault.jpg"
                 ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
                 embed=discord.Embed(title=video_title, url=video_url, description="Lofi Girl - This playlist contains the smoothest lofi hip hop beats, perfect to help you relax or fall asleep.", color=0x2ec27e)
-                embed.set_thumbnail(url="https://i.imgur.com/q2n6qJT.jpg")
+                embed.set_thumbnail(url=video_thumbnail)
                 await ctx.edit(embed=embed)
 
         else:
@@ -99,6 +105,45 @@ class lofi(commands.Cog, name="Lofi Stations"):
 
 
 
+    # Chillhop Radio - jazzy & lofi hip hop beats
+    @lofigroup.command(name='jazz',
+                    description="Chillhop Radio - jazzy & lofi hip hop beats",
+                    pass_context=True)
+    async def lofiJazz(self,ctx):
+
+        streamURL = "https://www.youtube.com/watch?v=5yx6BWlEVcY"
+        
+        if ctx.voice_client is not None:
+            await ctx.voice_client.disconnect()
+        connected = ctx.author.voice
+        if connected:
+            await connected.channel.connect()
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!")
+            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
+            await ctx.respond(embed=connectionEmbed)
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'quiet' : 'true',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                    }],
+            }
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(streamURL, download=False)
+                video_url = info['url']
+                video_title = info['title']
+                video_id = info['id']
+                video_thumbnail = f"https://i3.ytimg.com/vi/{video_id}/maxresdefault.jpg"
+                ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
+                embed=discord.Embed(title=video_title, url=video_url, description="Chillhop Radio - jazzy & lofi hip hop beats", color=0x2ec27e)
+                embed.set_thumbnail(url=video_thumbnail)
+                await ctx.edit(embed=embed)
+
+        else:
+            await ctx.respond('Plase Connect to voice channel')
+        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
 
 

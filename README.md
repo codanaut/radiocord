@@ -5,9 +5,14 @@ A radio for discord voice chats. This bot plays music from internet radio live s
 ## Getting started
 
 ### Requirements:
-We are now using [PyCord](https://github.com/Pycord-Development/pycord) instead of Discord.py for slash command support.
+We are using [PyCord](https://github.com/Pycord-Development/pycord) instead of Discord.py for slash command support.
 
     python3 -m pip install -U "py-cord[voice]"
+
+
+youtube-dl for the lofi & youtube sections. 
+
+    sudo pip install --upgrade youtube_dl
 
 Also requires `FFMPEG` for the radio module. 
 

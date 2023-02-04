@@ -15,12 +15,11 @@ if os.name =='nt':
     ffmpegPath = r"C:\\FFmpeg\\bin\\ffmpeg.exe"
 else:
     ffmpegPath = "ffmpeg"
-#
-# Radio Cog
-#
 
+
+# Remember to change the class name!
 class radio(commands.Cog, name="Radio Commands"):
-    """RadioCog"""
+
 
     def __init__(self, bot):
         self.bot = bot
@@ -185,9 +184,12 @@ class radio(commands.Cog, name="Radio Commands"):
                 info = ydl.extract_info(stream_url, download=False)
                 video_url = info['url']
                 video_title = info['title']
+                video_id = info['id']
+                video_thumbnail = f"https://i3.ytimg.com/vi/{video_id}/maxresdefault.jpg"
+                video_description = info['description']
                 ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
-                embed=discord.Embed(title=video_title, url=video_url, color=0x2ec27e)
-                embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/174/174883.png")
+                embed=discord.Embed(title=video_title, url=video_url, description=video_description, color=0x2ec27e)
+                embed.set_thumbnail(url=video_thumbnail)
                 await ctx.edit(embed=embed)
 
         else:
@@ -240,8 +242,7 @@ class radio(commands.Cog, name="Radio Commands"):
             await message.edit(embed=embed)
             await asyncio.sleep(30)  # Wait 30 seconds before making the next request
 
-# The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
-# When we load the cog, we use the name of the file.
 
+# Remember we give bot.add_cog() the name of the class you set at the top.
 def setup(bot):
    bot.add_cog(radio(bot))
