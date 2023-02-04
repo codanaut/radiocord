@@ -137,7 +137,7 @@ class radio(commands.Cog, name="Radio Commands"):
         connected = ctx.author.voice
         if connected:
             await connected.channel.connect()
-            connectionEmbed = Embed(title=f"Connecting to {connected.channel}")
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!")
             await ctx.respond(embed=connectionEmbed)
             ydl_opts = {
                 'format': 'bestaudio/best',
@@ -154,12 +154,46 @@ class radio(commands.Cog, name="Radio Commands"):
                 ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
                 embed=discord.Embed(title="Lofi Girl", url=video_url, description="Lofi Music", color=0x2ec27e)
                 embed.set_thumbnail(url="https://upload.wikimedia.org/wikipedia/en/2/23/Lofi_girl_logo.jpg")
-                #embed.add_field(name="Now Playing", value=f'{nowPlaying} \n {nowPlayingArtist}', inline=False)
                 await ctx.edit(embed=embed)
 
         else:
             await ctx.respond('Plase Connect to voice channel')
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
+
+
+    # youtube
+    @commands.slash_command(name='youtube',
+                    description="Youtube Link",
+                    pass_context=True)
+    async def youtube(self,ctx, *, stream_url: str):
+        if ctx.voice_client is not None:
+            await ctx.voice_client.disconnect()
+        connected = ctx.author.voice
+        if connected:
+            await connected.channel.connect()
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!")
+            await ctx.respond(embed=connectionEmbed)
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                    }],
+            }
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(stream_url, download=False)
+                video_url = info['url']
+                video_title = info['title']
+                ctx.voice_client.play(discord.FFmpegPCMAudio(video_url))
+                embed=discord.Embed(title=video_title, url=video_url, color=0x2ec27e)
+                embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/174/174883.png")
+                await ctx.edit(embed=embed)
+
+        else:
+            await ctx.respond('Plase Connect to voice channel')
+        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
+
 
 
     # Leave VC Channel
