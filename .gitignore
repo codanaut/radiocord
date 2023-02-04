@@ -2,3 +2,5 @@
 *.secret
 
 cogs/__pycache__/
+
+stations/__pycache__/
