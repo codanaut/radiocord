@@ -33,7 +33,8 @@ initial_extensions = [
                       'stations.lofi',
                       'stations.paddockRadio',
                       'stations.upfm',
-                      'stations.partyVibe'
+                      'stations.partyVibe',
+                      'stations.ojRock'
                       ]
 
 bot = commands.Bot(command_prefix=get_prefix, description='Cheat Codes: Use at your own risk, there is no quick save irl.', intents=intents)
