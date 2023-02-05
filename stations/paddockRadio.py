@@ -40,7 +40,8 @@ class paddockRadio(commands.Cog, name="Radio Commands"):
         if connected:
             await connected.channel.connect()
             ctx.voice_client.play(source, after=None)
-            connectionEmbed = Embed(title=f"Connecting to {connected.channel}")
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!", description="This may take a moment! Hang Tight!")
+            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
             await ctx.respond(embed=connectionEmbed)
             if self.updateTask is not None:
                 self.updateTask.cancel()
