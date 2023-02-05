@@ -33,7 +33,7 @@ class partyVibeRadio(commands.Cog, name="Party Vibe Radio"):
     async def partyVibeReggae(self,ctx):
 
         streamURL = "https://partyviberadio.com:8060"
-        stationApiUrl = "http://www.partyviberadio.com:8010/stats?sid=1"
+        stationApiUrl = "http://www.partyviberadio.com:8000/stats?sid=1"
         
         source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
         if ctx.voice_client is not None:
@@ -109,6 +109,58 @@ class partyVibeRadio(commands.Cog, name="Party Vibe Radio"):
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
 
+    # Party Vibe Radio - Pystrance Radio - https://www.partyvibe.com/psychedelic-trance-radio-station/
+    @partyVibeGroup.command(name='pystrance',
+                    description="Pystrance Radio",
+                    pass_context=True)
+    async def partyVibePystrance(self,ctx):
+
+        streamURL = "https://partyviberadio.com:8062"
+        stationApiUrl = "http://partyviberadio.com:8010/stats?sid=1"
+        
+        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
+        if ctx.voice_client is not None:
+            await ctx.voice_client.disconnect()
+        connected = ctx.author.voice
+        if connected:
+            await connected.channel.connect()
+            ctx.voice_client.play(source, after=None)
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!", description="This may take a moment!")
+            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
+            await ctx.respond(embed=connectionEmbed)
+            if self.updateTask is not None:
+                self.updateTask.cancel()
+            self.updateTask = asyncio.create_task(self.updateSongShoutCast(ctx,stationApiUrl))
+        else:
+            await ctx.respond('Plase Connect to voice channel')
+        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
+
+
+    # Party Vibe Radio - Pop Radio - https://www.partyvibe.com/pop-radio-station/
+    @partyVibeGroup.command(name='pop',
+                    description="Pop Radio",
+                    pass_context=True)
+    async def partyVibePystrance(self,ctx):
+
+        streamURL = "https://partyviberadio.com:8065"
+        stationApiUrl = "http://partyviberadio.com:8024/stats?sid=1"
+        
+        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
+        if ctx.voice_client is not None:
+            await ctx.voice_client.disconnect()
+        connected = ctx.author.voice
+        if connected:
+            await connected.channel.connect()
+            ctx.voice_client.play(source, after=None)
+            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!", description="This may take a moment!")
+            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
+            await ctx.respond(embed=connectionEmbed)
+            if self.updateTask is not None:
+                self.updateTask.cancel()
+            self.updateTask = asyncio.create_task(self.updateSongShoutCast(ctx,stationApiUrl))
+        else:
+            await ctx.respond('Plase Connect to voice channel')
+        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
     #
     # Function to update currently playing song.
