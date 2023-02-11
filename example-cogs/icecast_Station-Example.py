@@ -24,7 +24,7 @@ class majesticJukebox(commands.Cog, name="Majestic Jukebox Radio Commands"):
         self.bot = bot
         self.updateTask = None
 
-    # Radio - url
+    
     @commands.slash_command(name='majesticjukebox',
                     description="Majestic Jukebox Radio",
                     pass_context=True)
@@ -67,10 +67,13 @@ class majesticJukebox(commands.Cog, name="Majestic Jukebox Radio Commands"):
                 stationURL = response['icestats']['source'][0]['server_url']
                 stationDescription = response['icestats']['source'][0]['server_description']
                 nowPlaying = response['icestats']['source'][0]['title']
+                stationListeners = response['icestats']['source'][0]['listeners']
+                stationListenersPeak = response['icestats']['source'][0]['listener_peak']
             # Update the message with the new song information
             embed=discord.Embed(title=stationName, url=stationURL, description=stationDescription, color=0x2ec27e)
-            embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/2226/2226904.png")
+            embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/7674/7674917.png")
             embed.add_field(name="Now Playing", value=f'{nowPlaying}', inline=False)
+            embed.set_footer(text=f"Current Listeners: {stationListeners} | Peak Listeners: {stationListenersPeak}")
             await message.edit(embed=embed)
             await asyncio.sleep(30)  # Wait 30 seconds before making the next request
 
