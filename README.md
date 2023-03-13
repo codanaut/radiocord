@@ -10,7 +10,7 @@ We are using [PyCord](https://github.com/Pycord-Development/pycord) instead of D
     python3 -m pip install -U "py-cord[voice]"
 
 
-youtube-dl for the lofi & youtube sections. 
+youtube-dl for the lofi & youtube sections. (this is now disabled by default)
 
     sudo pip install --upgrade youtube_dl
 
