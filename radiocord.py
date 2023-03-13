@@ -29,8 +29,6 @@ def get_prefix(bot, message):
 # Think of it like a dot path import
 initial_extensions = [
                       'cogs.controls',
-                      'cogs.youtube',
-                      'stations.lofi',
                       'stations.paddockRadio',
                       'stations.upfm',
                       'stations.partyVibe',
