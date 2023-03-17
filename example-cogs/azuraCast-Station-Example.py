@@ -9,7 +9,7 @@ import asyncio
 import aiohttp
 import json
 import xml.etree.ElementTree as ET
-import youtube_dl
+
 
 if os.name =='nt':
     ffmpegPath = r"C:\\FFmpeg\\bin\\ffmpeg.exe"
