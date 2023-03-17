@@ -120,8 +120,8 @@ class dashCountryRadio(commands.Cog, name="Dash Country Radio"):
 
 
     # Dash Country X
-    @commands.slash_command(name='dashcountryx',
-                    description="Dash Country X - country music's biggest hits",
+    @commands.slash_command(name='dashcountry',
+                    description="Dash Country - country music's biggest hits",
                     pass_context=True)
     async def dashcountryx(self,ctx):
 
@@ -129,7 +129,7 @@ class dashCountryRadio(commands.Cog, name="Dash Country Radio"):
         stationApiUrl = "https://streamdb5web.securenetsystems.net/player_status_update/DASH35.xml"
         stationUrl = "https://dashradio.com/CountryX"
         stationArt = "https://dashradio-files.s3.amazonaws.com/development/icon_logos/43/logos/17666691-1291-4127-98b4-7cd4511445bc.png"
-        stationTitle = "Dash Country X"
+        stationTitle = "Dash Country"
         stationDescription = "The home for country music's biggest hits and upcoming superstars."
 
         source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
