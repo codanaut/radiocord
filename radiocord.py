@@ -35,7 +35,8 @@ initial_extensions = [
                       'stations.ojRock',
                       'stations.majesticJukebox',
                       'stations.size-radio',
-                      'stations.dash-country'
+                      'stations.dash-country',
+                      'stations.dash-rock'
                       ]
 
 bot = commands.Bot(command_prefix=get_prefix, description='Cheat Codes: Use at your own risk, there is no quick save irl.', intents=intents)
