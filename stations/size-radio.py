@@ -26,7 +26,7 @@ class sizeRadio(commands.Cog, name="Size Radio"):
 
     # Paddock Radio - https://www.paddockradio.net/
     @commands.slash_command(name='sizeradio',
-                    description="Size Radio",
+                    description="Size Radio - #Soul #Funk #Pop #Rock #HipHop",
                     pass_context=True)
     async def sizeradio(self,ctx):
 
