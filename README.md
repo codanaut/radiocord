@@ -2,6 +2,9 @@
 
 A radio for discord voice chats. This bot plays music from internet radio live streams. 
 
+## Try RadioCord
+You can invite RadioCord to your server and try it out! - [RadioCord](https://discord.com/api/oauth2/authorize?client_id=1070962830381162526&permissions=3148032&scope=bot "RadioCord Invite Link")
+
 ## Getting started
 
 ### Requirements:
