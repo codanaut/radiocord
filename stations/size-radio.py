@@ -9,6 +9,7 @@ import asyncio
 import aiohttp
 import json
 import xml.etree.ElementTree as ET
+import logging
 
 if os.name =='nt':
     ffmpegPath = r"C:\\FFmpeg\\bin\\ffmpeg.exe"
@@ -24,7 +25,7 @@ class sizeRadio(commands.Cog, name="Size Radio"):
         self.bot = bot
         self.updateTask = None
 
-    # Paddock Radio - https://www.paddockradio.net/
+    # Size Radio
     @commands.slash_command(name='sizeradio',
                     description="Size Radio - #Soul #Funk #Pop #Rock #HipHop",
                     pass_context=True)
@@ -48,7 +49,11 @@ class sizeRadio(commands.Cog, name="Size Radio"):
             self.updateTask = asyncio.create_task(self.updateSong(ctx,stationApiUrl))
         else:
             await ctx.respond('Plase Connect to voice channel')
-        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
+        
+        # Log
+        message_str = f"{time.strftime('%m/%d/%y %I:%M%p')} - User:{ctx.author} - Server:{ctx.guild} - Command:/{ctx.command} "
+        logging.info(message_str)
+        print(message_str)
 
 
 

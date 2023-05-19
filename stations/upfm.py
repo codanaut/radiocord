@@ -8,7 +8,7 @@ import asyncio
 import aiohttp
 import json
 import xml.etree.ElementTree as ET
-
+import logging
 
 if os.name =='nt':
     ffmpegPath = r"C:\\FFmpeg\\bin\\ffmpeg.exe"
@@ -48,7 +48,12 @@ class upfmRadio(commands.Cog, name="UPFM Radio"):
             self.updateTask = asyncio.create_task(self.updateSongAzuraCast(ctx,stationApiUrl))
         else:
             await ctx.respond('Plase Connect to voice channel')
-        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")        
+        
+
+        # Log
+        message_str = f"{time.strftime('%m/%d/%y %I:%M%p')} - User:{ctx.author} - Server:{ctx.guild} - Command:/{ctx.command} "
+        logging.info(message_str)
+        print(message_str)
 
 
 
