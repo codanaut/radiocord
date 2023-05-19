@@ -4,6 +4,7 @@ import random
 import aiohttp
 import json
 import time
+import logging
 #
 # Tools Cog 
 # 
@@ -16,16 +17,23 @@ class tools(commands.Cog, name="Random Tools Commands"):
 
     
     # List Servers
-    @commands.slash_command(name='servers',
-                    description="List Servers Bot is in",
-                    brief="List Servers Bot is in",
-                    aliases=['servers', 'serverlists'])
-    async def servers(self,ctx):
+    @commands.slash_command(name='stats',
+                    description="See Bot Stats",
+                    brief="Bot Stats")
+    async def stats(self,ctx):
         """List Server Bot is in."""
         servers = list(self.bot.guilds)
         newLine = '\n'
-        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
-        await ctx.respond(f"**Connected on {str(len(servers))} servers:**{newLine}{newLine.join(server.name for server in servers)}")
+        
+        fun_phrases = ["Jamming", "Blasting tunes", "Rocking out", "Playing", "Haning out"]
+        fun_phrase = random.choice(fun_phrases)
+
+        await ctx.respond(f"**{fun_phrase} on {str(len(servers))} servers**")
+
+        # Log
+        message_str = f"{time.strftime('%m/%d/%y %I:%M%p')} - User:{ctx.author} - Server:{ctx.guild} - Command: /{ctx.command} "
+        logging.info(message_str)
+        print(message_str)
 
 
     

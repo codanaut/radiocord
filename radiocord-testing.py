@@ -6,7 +6,7 @@ import time
 import logging
 
 # set token
-secret_file = open('token.secret','r')
+secret_file = open('testing.secret','r')
 client_token = secret_file.readline().rstrip()
 
 logging.basicConfig(
