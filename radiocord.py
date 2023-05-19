@@ -77,7 +77,7 @@ async def on_ready():
     print("-----")
     
     # Log
-    message_str = f"{time.strftime('%m/%d/%y %I:%M%p')} - Sever Started - Connected on {str(len(servers))} servers"
+    message_str = f"{time.strftime('%m/%d/%y %I:%M%p')} - Bot Started - Connected on {str(len(servers))} servers"
     logging.info(message_str)
 
 bot.run(client_token, reconnect=True)
