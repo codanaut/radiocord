@@ -12,7 +12,7 @@ client_token = secret_file.readline().rstrip()
 logging.basicConfig(
     level=logging.INFO,
     format='%(levelname)s %(message)s',
-    filename='bot.log',
+    filename='/logs/bot.log',
     filemode='a' # use 'a' if you want to append only
 )
 
