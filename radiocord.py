@@ -12,7 +12,7 @@ client_token = secret_file.readline().rstrip()
 logging.basicConfig(
     level=logging.INFO,
     format='%(levelname)s %(message)s',
-    filename='/logs/bot.log',
+    filename='bot.log',
     filemode='a' # use 'a' if you want to append only
 )
 
@@ -66,6 +66,9 @@ if __name__ == '__main__':
 
 @bot.event
 async def on_ready():
+
+    if bot.auto_sync_commands:
+        await bot.sync_commands()
 
     print(f'\nLogged in as: {bot.user.name}\nDiscord Version: {discord.__version__}\n-----')
 

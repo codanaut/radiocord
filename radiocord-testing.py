@@ -53,7 +53,6 @@ initial_extensions = [
 bot = commands.Bot(command_prefix=get_prefix, description='Cheat Codes: Use at your own risk, there is no quick save irl.', intents=intents)
 
 
-
 # Here we load our extensions(cogs) listed above in [initial_extensions].
 if __name__ == '__main__':
     for extension in initial_extensions:
@@ -67,6 +66,9 @@ if __name__ == '__main__':
 @bot.event
 async def on_ready():
 
+    if bot.auto_sync_commands:
+        await bot.sync_commands()
+        
     print(f'\nLogged in as: {bot.user.name}\nDiscord Version: {discord.__version__}\n-----')
 
     # Changes our bots Playing Status. type=1(streaming) for a standard game you could remove type and url.
