@@ -10,7 +10,7 @@ WORKDIR /app
 # Install the Python dependencies
 #RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python3 -m pip install -U py-cord[voice]
+RUN python3 -m pip install -U py-cord[voice]==2.7.0rc1
 
 RUN pip install audioop-lts
 
