@@ -69,7 +69,7 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
                         source_data = source_info
 
                     #stationName = source_data.get('server_name', 'Unknown Station')
-                    stationName = "Free Rollin Music"
+                    stationName = "Free Rollin Radio"
                     stationURL = source_data.get('server_url', '')
                     #stationDescription = source_data.get('server_description', '')
                     stationDescription = "Playing the best tunes!"
