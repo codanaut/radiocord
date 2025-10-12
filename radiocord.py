@@ -42,11 +42,7 @@ initial_extensions = [
                       'cogs.info',
                       'stations.paddockRadio',
                       'stations.upfm',
-                      'stations.partyVibe',
-                      'stations.majesticJukebox',
-                      'stations.size-radio',
-                      'stations.dash-country',
-                      'stations.dash-rock',
+                      'stations.freerollinradio',
                       'stations.custom-stream'
                       ]
 
