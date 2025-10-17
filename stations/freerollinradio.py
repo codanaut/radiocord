@@ -31,24 +31,39 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
             
         connected = ctx.author.voice
         if connected:
+            await ctx.defer()
+
             voice_client = await connected.channel.connect()
             voice_client.play(source, after=None)
             
-            connectionEmbed = Embed(title=f"Connecting to {connected.channel} and starting stream!", description="This may take a moment! Hang Tight!")
-            connectionEmbed.set_footer(text="(note: some live streams may go offline at times, if a stream is dead try another)")
-            await ctx.respond(embed=connectionEmbed)
+            # Create the initial embed for the PUBLIC "Now Playing" message.
+            initial_embed = Embed(title="Free Rollin Radio", color=0x2ec27e, description="Playing the best tunes!")
+            initial_embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/7674/7674917.png")
+            initial_embed.add_field(name="Now Playing", value="*Fetching info...*", inline=False)
+            initial_embed.set_footer(text="Listeners: N/A | Peak: N/A")
+
+            # Send the public message that everyone can see and we can update forever.
+            now_playing_message = await ctx.send(embed=initial_embed)
             
+            # Cancel any old update task that might be running.
             if self.updateTask is not None:
                 self.updateTask.cancel()
                 
-            self.updateTask = asyncio.create_task(self.updateSongiceCast(ctx, stationApiUrl))
+            # Start the background task to update the public message.
+            self.updateTask = asyncio.create_task(self.updateSongiceCast(now_playing_message, stationApiUrl))
+
+            # Edit our private "thinking..." message into a final confirmation for the user.
+            await ctx.edit(content=f"✅ Started streaming in **{connected.channel.name}**!")
+
         else:
-            await ctx.respond('Please connect to a voice channel')
+            # Send a private message if the user isn't in a voice channel.
+            await ctx.respond('Please connect to a voice channel', ephemeral=True)
             
         print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
-    async def updateSongiceCast(self, message, url):
+    async def updateSongiceCast(self, message_to_edit, url):
         while True:
+            await asyncio.sleep(30) # Wait first to avoid hitting the API too quickly at startup
             nowPlayingurl = url
             async with aiohttp.ClientSession() as session:
                 try:
@@ -59,19 +74,15 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
                     source_info = data.get('icestats', {}).get('source')
                     if not source_info:
                         print("Source data not found in API response.")
-                        await asyncio.sleep(30)
                         continue
 
-                    # FIX: Check if source_info is a list and grab the first element if it is.
                     if isinstance(source_info, list):
                         source_data = source_info[0]
                     else:
                         source_data = source_info
 
-                    #stationName = source_data.get('server_name', 'Unknown Station')
                     stationName = "Free Rollin Radio"
                     stationURL = source_data.get('server_url', '')
-                    #stationDescription = source_data.get('server_description', '')
                     stationDescription = "Playing the best tunes!"
                     nowPlaying = source_data.get('title', 'Unknown Title')
                     stationListeners = source_data.get('listeners', 0)
@@ -79,15 +90,17 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
                     
                     embed = discord.Embed(title=stationName, url=stationURL, description=stationDescription, color=0x2ec27e)
                     embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/7674/7674917.png")
-                    embed.add_field(name="Now Playing", value=f'{nowPlaying}', inline=False)
-                    embed.set_footer(text=f"Current Listeners: {stationListeners} | Peak Listeners: {stationListenersPeak}")
+                    embed.add_field(name="Now Playing", value=f'🎵 {nowPlaying}', inline=False)
+                    embed.set_footer(text=f"Listeners: {stationListeners} | Peak: {stationListenersPeak}")
                     
-                    await message.edit(embed=embed)
+                    await message_to_edit.edit(embed=embed)
 
+                except discord.errors.NotFound:
+                    print("Update message not found. Stopping task.")
+                    break # Stop the loop if the message was deleted
                 except Exception as e:
                     print(f"An error occurred while updating the song: {e}")
 
-            await asyncio.sleep(30)
 
 def setup(bot):
    bot.add_cog(freerollinradio(bot))
