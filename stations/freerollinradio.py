@@ -25,7 +25,7 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
         
         # AzuraCast URLs
         streamURL = "http://radio.codanaut.com/listen/free_rollin_radio/radio.mp3"
-        stationApiUrl = "http://radio.codanaut.com/api/nowplaying"
+        stationApiUrl = "https://radio.codanaut.com/api/nowplaying"
         
         # Setup Source
         # Note: Added options to ignore SSL errors for FFmpeg if using raw IP with HTTPS
