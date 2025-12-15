@@ -19,88 +19,115 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
         self.bot = bot
         self.updateTask = None
 
+    # FreeRollinRadio - https://www.paddockradio.net/
     @commands.slash_command(name='freerollinradio', description="Free Rollin Radio")
     async def freerollinradio(self, ctx):
-        streamURL = "http://100.108.204.69:20420/radio.mp3"
-        stationApiUrl = "http://100.108.204.69:20420/status-json.xsl"
         
-        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath)
+        # AzuraCast URLs
+        streamURL = "http://radio.codanaut.com/listen/free_rollin_radio/radio.mp3"
+        stationApiUrl = "http://radio.codanaut.com/api/nowplaying"
         
+        # Setup Source
+        # Note: Added options to ignore SSL errors for FFmpeg if using raw IP with HTTPS
+        source = FFmpegPCMAudio(streamURL, executable=ffmpegPath, options='-vn')
+
+        # Handle Voice Connection
         if ctx.voice_client is not None:
             await ctx.voice_client.disconnect()
             
         connected = ctx.author.voice
         if connected:
+            # 1. Defer the interaction immediately
             await ctx.defer()
 
+            # 2. Connect to voice
             voice_client = await connected.channel.connect()
             voice_client.play(source, after=None)
             
-            # Create the initial embed for the PUBLIC "Now Playing" message.
-            initial_embed = Embed(title="Free Rollin Radio", color=0x2ec27e, description="Playing the best tunes!")
+            # 3. Create the initial Embed (Just like your working fix)
+            initial_embed = Embed(title="Free Rollin Radio", color=0x2ec27e, description="Connecting to AzuraCast Stream...")
             initial_embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/7674/7674917.png")
             initial_embed.add_field(name="Now Playing", value="*Fetching info...*", inline=False)
-            initial_embed.set_footer(text="Listeners: N/A | Peak: N/A")
+            initial_embed.set_footer(text="Station: Free Rollin Joint")
 
-            # Send the public message that everyone can see and we can update forever.
-            now_playing_message = await ctx.send(embed=initial_embed)
+            # 4. Send the message and CAPTURE the message object
+            # We use ctx.send or ctx.respond depending on your library version, 
+            # but ctx.send is usually safer for followups after defer().
+            now_playing_message = await ctx.respond(embed=initial_embed)
             
-            # Cancel any old update task that might be running.
+            # If using Pycord, ctx.respond returns an Interaction, so we might need to fetch the message:
+            if not isinstance(now_playing_message, discord.Message):
+                 now_playing_message = await now_playing_message.original_response()
+
+            # 5. Cancel old tasks
             if self.updateTask is not None:
                 self.updateTask.cancel()
-                
-            # Start the background task to update the public message.
-            self.updateTask = asyncio.create_task(self.updateSongiceCast(now_playing_message, stationApiUrl))
-
-            # Edit our private "thinking..." message into a final confirmation for the user.
-            await ctx.edit(content=f"✅ Started streaming in **{connected.channel.name}**!")
+            
+            # 6. Start the background task passing the SPECIFIC MESSAGE
+            self.updateTask = asyncio.create_task(self.updateSongAzuraCast(now_playing_message, stationApiUrl))
+            
+            # Log it
+            print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
 
         else:
-            # Send a private message if the user isn't in a voice channel.
-            await ctx.respond('Please connect to a voice channel', ephemeral=True)
-            
-        print(f"{time.strftime('%m/%d/%y %I:%M%p')} - /{ctx.command} - Server:{ctx.guild} - User:{ctx.author}")
+            await ctx.respond('Please Connect to voice channel', ephemeral=True)
 
-    async def updateSongiceCast(self, message_to_edit, url):
+
+    async def updateSongAzuraCast(self, message_to_edit, url):
+        # We start the loop immediately. 
+        # (Optional) You can leave a tiny 1-second buffer just to be safe, but 10 was too long.
+        await asyncio.sleep(1) 
+        
         while True:
-            await asyncio.sleep(30) # Wait first to avoid hitting the API too quickly at startup
             nowPlayingurl = url
             async with aiohttp.ClientSession() as session:
                 try:
-                    raw_response = await session.get(nowPlayingurl)
-                    response = await raw_response.text()
-                    data = json.loads(response)
-                    
-                    source_info = data.get('icestats', {}).get('source')
-                    if not source_info:
-                        print("Source data not found in API response.")
-                        continue
+                    async with session.get(nowPlayingurl, ssl=False) as raw_response:
+                        response_text = await raw_response.text()
+                        data = json.loads(response_text)
 
-                    if isinstance(source_info, list):
-                        source_data = source_info[0]
-                    else:
-                        source_data = source_info
+                        if isinstance(data, list) and len(data) > 0:
+                            station_data = data[0]
+                        elif isinstance(data, dict):
+                            station_data = data
+                        else:
+                            print("Unknown API response format")
+                            # If we fail to read data, wait a bit and try again
+                            await asyncio.sleep(30)
+                            continue
 
-                    stationName = "Free Rollin Radio"
-                    stationURL = source_data.get('server_url', '')
-                    stationDescription = "Playing the best tunes!"
-                    nowPlaying = source_data.get('title', 'Unknown Title')
-                    stationListeners = source_data.get('listeners', 0)
-                    stationListenersPeak = source_data.get('listener_peak', 0)
-                    
-                    embed = discord.Embed(title=stationName, url=stationURL, description=stationDescription, color=0x2ec27e)
-                    embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/7674/7674917.png")
-                    embed.add_field(name="Now Playing", value=f'🎵 {nowPlaying}', inline=False)
-                    embed.set_footer(text=f"Listeners: {stationListeners} | Peak: {stationListenersPeak}")
-                    
-                    await message_to_edit.edit(embed=embed)
+                        station_info = station_data.get('station', {})
+                        now_playing_info = station_data.get('now_playing', {})
+                        song_info = now_playing_info.get('song', {})
+
+                        stationName = station_info.get('name', 'Free Rollin Radio')
+                        stationURL = station_info.get('url', '')
+                        stationDescription = station_info.get('description', 'Streaming Live')
+                        
+                        trackTitle = song_info.get('title', 'Unknown Title')
+                        trackArtist = song_info.get('artist', 'Unknown Artist')
+                        trackArt = song_info.get('art', '')
+                        
+                        listeners = station_data.get('listeners', {}).get('current', 0)
+
+                        embed = discord.Embed(title=stationName, url=stationURL, description=stationDescription, color=0x2ec27e)
+                        if trackArt:
+                            embed.set_thumbnail(url=trackArt)
+                        
+                        embed.add_field(name="Now Playing", value=f'🎵 {trackTitle}\n👤 {trackArtist}', inline=False)
+                        embed.set_footer(text=f"Listeners: {listeners}")
+
+                        await message_to_edit.edit(embed=embed)
 
                 except discord.errors.NotFound:
-                    print("Update message not found. Stopping task.")
-                    break # Stop the loop if the message was deleted
+                    print("Message deleted, stopping updater.")
+                    break
                 except Exception as e:
-                    print(f"An error occurred while updating the song: {e}")
-
+                    print(f"Error in AzuraCast update: {e}")
+            
+            # This is the important change:
+            # We sleep AFTER the update is done, so the first one happens instantly.
+            await asyncio.sleep(30)
 
 def setup(bot):
    bot.add_cog(freerollinradio(bot))
