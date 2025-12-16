@@ -23,7 +23,7 @@ class freerollinradio(commands.Cog, name="FreeRollinRadio"):
     async def freerollinradio(self, ctx):
         
         # --- CONFIGURATION ---
-        streamURL = "https://radio.codanaut.com/listen/free_rollin_joint/radio.mp3"
+        streamURL = "https://radio.codanaut.com/listen/free_rollin_radio/radio.mp3"
         stationApiUrl = "https://radio.codanaut.com/api/nowplaying"
         
         # --- VOICE CONNECTION ---
